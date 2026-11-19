@@ -1,8 +1,8 @@
 import { SESClient } from '@aws-sdk/client-ses'
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import { sendTaskSummaryEmail } from './sendTaskSummaryEmail.ts'
-import type { SummaryTask } from './taskSummary.ts'
-import { verifyFirebaseIdToken } from './verifyFirebaseIdToken.ts'
+import { sendTaskSummaryEmail } from './_lib/sendTaskSummaryEmail.ts'
+import type { SummaryTask } from './_lib/taskSummary.ts'
+import { verifyFirebaseIdToken } from './_lib/verifyFirebaseIdToken.ts'
 
 type NodeRequest = IncomingMessage & { body?: unknown }
 
