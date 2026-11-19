@@ -46,6 +46,7 @@ describe('tareas', () => {
       title: 'Comprar café',
       description: 'En el centro',
       dueDate: '2026-11-20',
+      order: 1,
     })
 
     expect(addDoc).toHaveBeenCalledWith(
@@ -56,6 +57,7 @@ describe('tareas', () => {
         description: 'En el centro',
         completed: false,
         dueDate: '2026-11-20',
+        order: 1,
         createdAt: 'server-timestamp',
       },
     )
@@ -68,6 +70,7 @@ describe('tareas', () => {
       description: 'Reglas',
       completed: false,
       dueDate: '2026-12-01',
+      order: 2,
     })
 
     expect(updateDoc).toHaveBeenCalledWith(
@@ -78,6 +81,7 @@ describe('tareas', () => {
         description: 'Reglas',
         completed: false,
         dueDate: '2026-12-01',
+        order: 2,
       },
     )
   })
@@ -85,7 +89,7 @@ describe('tareas', () => {
   it('marca una tarea como completada', async () => {
     await setTaskCompleted(
       'task-1',
-      { userId: 'u1', title: 'Estudiar', description: 'Reglas', dueDate: '2026-12-01' },
+      { userId: 'u1', title: 'Estudiar', description: 'Reglas', dueDate: '2026-12-01', order: 2 },
       true,
     )
 
@@ -97,6 +101,7 @@ describe('tareas', () => {
         description: 'Reglas',
         completed: true,
         dueDate: '2026-12-01',
+        order: 2,
       },
     )
   })
@@ -176,6 +181,7 @@ describe('tareas', () => {
         description: 'Detalle',
         completed: true,
         dueDate: '2026-01-20',
+        order: null,
         createdAt: '2026-03-01T00:00:00.000Z',
       },
       {
@@ -185,6 +191,7 @@ describe('tareas', () => {
         description: '',
         completed: false,
         dueDate: '2026-03-01',
+        order: null,
         createdAt: '2026-01-01T00:00:00.000Z',
       },
       {
@@ -194,6 +201,7 @@ describe('tareas', () => {
         description: '',
         completed: false,
         dueDate: null,
+        order: null,
         createdAt: '2026-04-01T00:00:00.000Z',
       },
     ])

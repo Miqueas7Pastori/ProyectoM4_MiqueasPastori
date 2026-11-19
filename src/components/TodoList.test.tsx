@@ -1,7 +1,8 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { deleteDoc, onSnapshot, updateDoc, where } from 'firebase/firestore'
+import { deleteDoc, updateDoc } from 'firebase/firestore'
+import type { Task } from '../types/task.ts'
 import { TodoList } from './TodoList.tsx'
 
 vi.mock('../services/firebase.ts', () => ({
@@ -24,99 +25,59 @@ vi.mock('firebase/firestore', () => ({
   serverTimestamp: vi.fn(() => 'server-timestamp'),
 }))
 
-type FakeDoc = {
-  id: string
-  data: Record<string, unknown>
-}
-
-function emitTasks(docs: FakeDoc[]) {
-  vi.mocked(onSnapshot).mockImplementation(((
-    _query: unknown,
-    onNext: (snapshot: { docs: Array<{ id: string; data: () => Record<string, unknown> }> }) => void,
-  ) => {
-    onNext({
-      docs: docs.map((item) => ({
-        id: item.id,
-        data: () => item.data,
-      })),
-    })
-    return () => {}
-  }) as never)
-}
-
-function timestamp(iso: string) {
-  return { toDate: () => new Date(iso) }
-}
-
-const ownTasks: FakeDoc[] = [
+const ownTasks: Task[] = [
   {
     id: 'new',
-    data: {
-      userId: 'u1',
-      title: 'Más nueva',
-      description: 'Primero',
-      completed: false,
-      dueDate: '2026-01-10',
-      createdAt: timestamp('2026-01-02T00:00:00.000Z'),
-    },
+    userId: 'u1',
+    title: 'Más nueva',
+    description: 'Primero',
+    completed: false,
+    dueDate: '2026-01-10',
+    order: 0,
+    createdAt: '2026-01-02T00:00:00.000Z',
   },
   {
     id: 'old',
-    data: {
-      userId: 'u1',
-      title: 'Más vieja',
-      description: '',
-      completed: true,
-      dueDate: '2026-02-01',
-      createdAt: timestamp('2026-01-01T00:00:00.000Z'),
-    },
-  },
-  {
-    id: 'other',
-    data: {
-      userId: 'u2',
-      title: 'Ajena',
-      description: 'No se muestra',
-      completed: false,
-      createdAt: timestamp('2026-01-03T00:00:00.000Z'),
-    },
+    userId: 'u1',
+    title: 'Más vieja',
+    description: '',
+    completed: true,
+    dueDate: '2026-02-01',
+    order: 1,
+    createdAt: '2026-01-01T00:00:00.000Z',
   },
 ]
 
+function renderList(tasks: Task[] = ownTasks, loading = false, error: string | null = null) {
+  return render(<TodoList userId="u1" tasks={tasks} loading={loading} error={error} />)
+}
+
 describe('TodoList', () => {
   beforeEach(() => {
-    vi.mocked(where).mockClear()
     vi.mocked(updateDoc).mockReset()
     vi.mocked(updateDoc).mockResolvedValue(undefined)
     vi.mocked(deleteDoc).mockReset()
     vi.mocked(deleteDoc).mockResolvedValue(undefined)
-    vi.mocked(onSnapshot).mockReset()
-    emitTasks([])
   })
 
-  it('lista solo las tareas del usuario, de la más nueva a la más vieja', async () => {
-    emitTasks(ownTasks)
-    render(<TodoList userId="u1" />)
+  it('muestra las tareas en el orden guardado', async () => {
+    renderList()
 
     const titles = (await screen.findAllByRole('heading', { level: 3 })).map(
       (heading) => heading.textContent,
     )
 
     expect(titles).toEqual(['Más nueva', 'Más vieja'])
-    expect(screen.queryByText('Ajena')).not.toBeInTheDocument()
     expect(screen.getByText('Primero')).toBeInTheDocument()
     expect(screen.getByRole('checkbox', { name: 'Marcar Más vieja como pendiente' })).toBeChecked()
-    expect(where).toHaveBeenCalledWith('userId', '==', 'u1')
+    expect(screen.getByRole('button', { name: 'Reordenar Más nueva' })).toBeInTheDocument()
   })
 
   it('marca una tarea como completada', async () => {
-    emitTasks(ownTasks)
     const user = userEvent.setup()
-    render(<TodoList userId="u1" />)
+    renderList()
 
-    await user.click(
-      await screen.findByRole('checkbox', { name: 'Marcar Más nueva como completada' }),
-    )
+    await user.click(screen.getByRole('checkbox', { name: 'Marcar Más nueva como completada' }))
 
     await waitFor(() => {
       expect(updateDoc).toHaveBeenCalledWith(
@@ -127,17 +88,17 @@ describe('TodoList', () => {
           description: 'Primero',
           completed: true,
           dueDate: '2026-01-10',
+          order: 0,
         },
       )
     })
   })
 
   it('elimina una tarea', async () => {
-    emitTasks(ownTasks)
     const user = userEvent.setup()
-    render(<TodoList userId="u1" />)
+    renderList()
 
-    await user.click(await screen.findByRole('button', { name: 'Eliminar Más nueva' }))
+    await user.click(screen.getByRole('button', { name: 'Eliminar Más nueva' }))
 
     await waitFor(() => {
       expect(deleteDoc).toHaveBeenCalledWith({ path: 'tasks/new' })
@@ -145,11 +106,10 @@ describe('TodoList', () => {
   })
 
   it('edita el título desde el listado', async () => {
-    emitTasks(ownTasks)
     const user = userEvent.setup()
-    render(<TodoList userId="u1" />)
+    renderList()
 
-    await user.click(await screen.findByRole('button', { name: 'Editar Más nueva' }))
+    await user.click(screen.getByRole('button', { name: 'Editar Más nueva' }))
     const title = screen.getByLabelText('Título')
     await user.clear(title)
     await user.type(title, 'Más nueva editada')
@@ -164,23 +124,24 @@ describe('TodoList', () => {
           description: 'Primero',
           completed: false,
           dueDate: '2026-01-10',
+          order: 0,
         },
       )
     })
   })
 
   it('filtra pendientes y completadas', async () => {
-    emitTasks(ownTasks)
     const user = userEvent.setup()
-    render(<TodoList userId="u1" />)
+    renderList()
 
-    expect(await screen.findByRole('heading', { name: 'Más nueva' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Más nueva' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Más vieja' })).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: 'Pendientes' }))
 
     expect(screen.getByRole('heading', { name: 'Más nueva' })).toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: 'Más vieja' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Reordenar Más nueva' })).not.toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: 'Completadas' }))
 
@@ -193,33 +154,22 @@ describe('TodoList', () => {
     expect(screen.getByRole('heading', { name: 'Más vieja' })).toBeInTheDocument()
   })
 
-  it('muestra el estado vacío', async () => {
-    emitTasks([])
-    render(<TodoList userId="u1" />)
+  it('muestra el estado vacío', () => {
+    renderList([])
 
-    expect(await screen.findByText('Todavía no tenés tareas.')).toBeInTheDocument()
+    expect(screen.getByText('Todavía no tenés tareas.')).toBeInTheDocument()
   })
 
-  it('muestra el error de Firestore', async () => {
-    vi.mocked(onSnapshot).mockImplementation(((
-      _query: unknown,
-      _onNext: unknown,
-      onError: (error: { code: string }) => void,
-    ) => {
-      onError({ code: 'permission-denied' })
-      return () => {}
-    }) as never)
+  it('muestra el error de Firestore', () => {
+    renderList([], false, 'No tenés permiso para ver o modificar estas tareas.')
 
-    render(<TodoList userId="u1" />)
-
-    expect(await screen.findByRole('alert')).toHaveTextContent(
+    expect(screen.getByRole('alert')).toHaveTextContent(
       'No tenés permiso para ver o modificar estas tareas.',
     )
   })
 
   it('muestra la carga mientras Firestore no responde', () => {
-    vi.mocked(onSnapshot).mockImplementation(() => () => {})
-    render(<TodoList userId="u1" />)
+    renderList([], true)
 
     expect(screen.getByRole('status')).toHaveTextContent('Cargando tareas...')
   })

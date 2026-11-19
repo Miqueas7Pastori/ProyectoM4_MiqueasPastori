@@ -32,6 +32,7 @@ const existing: Task = {
   description: 'Repasar Firestore',
   completed: false,
   dueDate: '2026-03-01',
+  order: 0,
   createdAt: '2026-01-02T00:00:00.000Z',
 }
 
@@ -71,6 +72,7 @@ describe('TodoForm', () => {
           description: 'En el centro',
           completed: false,
           dueDate: '2026-11-20',
+          order: 0,
           createdAt: 'server-timestamp',
         },
       )
@@ -100,6 +102,7 @@ describe('TodoForm', () => {
           description: 'Repasar Firestore',
           completed: false,
           dueDate: '2026-04-02',
+          order: 0,
         },
       )
     })

@@ -1,11 +1,13 @@
 import { useState, type FormEvent } from 'react'
 import { createTask, updateTask } from '../services/tasks.ts'
+import { orderForNewTask } from '../services/taskOrder.ts'
 import { getTaskErrorMessage } from '../services/taskErrors.ts'
 import type { Task } from '../types/task.ts'
 
 type TodoFormProps = {
   userId: string
   task?: Task
+  tasks?: Task[]
   onDone?: () => void
 }
 
@@ -19,7 +21,7 @@ function validate(title: string, description: string, dueDate: string) {
   return null
 }
 
-export function TodoForm({ userId, task, onDone }: TodoFormProps) {
+export function TodoForm({ userId, task, tasks = [], onDone }: TodoFormProps) {
   const [title, setTitle] = useState(task?.title ?? '')
   const [description, setDescription] = useState(task?.description ?? '')
   const [dueDate, setDueDate] = useState(task?.dueDate ?? '')
@@ -50,6 +52,7 @@ export function TodoForm({ userId, task, onDone }: TodoFormProps) {
           description: nextDescription,
           completed: task.completed,
           dueDate: nextDueDate,
+          order: task.order ?? 0,
         })
         onDone?.()
       } else {
@@ -57,6 +60,7 @@ export function TodoForm({ userId, task, onDone }: TodoFormProps) {
           title: nextTitle,
           description: nextDescription,
           dueDate: nextDueDate,
+          order: orderForNewTask(tasks, nextDueDate),
         })
         setTitle('')
         setDescription('')

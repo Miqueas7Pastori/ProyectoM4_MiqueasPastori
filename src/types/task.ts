@@ -5,6 +5,7 @@ export type Task = {
   description: string
   completed: boolean
   dueDate: string | null
+  order: number | null
   createdAt: string | null
 }
 
@@ -12,4 +13,5 @@ export type TaskInput = {
   title: string
   description: string
   dueDate: string | null
+  order: number
 }

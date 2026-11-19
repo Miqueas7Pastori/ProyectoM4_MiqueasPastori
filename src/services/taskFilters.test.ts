@@ -10,6 +10,7 @@ const tasks: Task[] = [
     description: '',
     completed: false,
     dueDate: null,
+    order: null,
     createdAt: null,
   },
   {
@@ -19,6 +20,7 @@ const tasks: Task[] = [
     description: '',
     completed: true,
     dueDate: '2026-11-20',
+    order: 1,
     createdAt: null,
   },
 ]

@@ -12,6 +12,7 @@ import {
 import type { Task, TaskInput } from '../types/task.ts'
 import { db } from './firebase.ts'
 import { getTaskErrorMessage } from './taskErrors.ts'
+import { compareTasks } from './taskOrder.ts'
 
 const tasksCollection = 'tasks'
 
@@ -51,19 +52,9 @@ function mapTask(id: string, data: Record<string, unknown>): Task {
     description: typeof data.description === 'string' ? data.description : '',
     completed: data.completed === true,
     dueDate: readDueDate(data.dueDate),
+    order: typeof data.order === 'number' && Number.isFinite(data.order) ? data.order : null,
     createdAt: readCreatedAt(data.createdAt),
   }
-}
-
-function byDueDate(a: Task, b: Task) {
-  if (a.dueDate && b.dueDate && a.dueDate !== b.dueDate) return a.dueDate < b.dueDate ? -1 : 1
-
-  if (a.dueDate && !b.dueDate) return -1
-  if (!a.dueDate && b.dueDate) return 1
-
-  const aTime = a.createdAt ? Date.parse(a.createdAt) : Number.POSITIVE_INFINITY
-  const bTime = b.createdAt ? Date.parse(b.createdAt) : Number.POSITIVE_INFINITY
-  return bTime - aTime
 }
 
 export function subscribeToTasks(
@@ -84,7 +75,7 @@ export function subscribeToTasks(
       const tasks = snapshot.docs
         .map((item) => mapTask(item.id, item.data() as Record<string, unknown>))
         .filter((task) => task.userId === userId)
-        .sort(byDueDate)
+        .sort(compareTasks)
 
       onChange(tasks)
     },
@@ -101,6 +92,7 @@ export async function createTask(userId: string, input: TaskInput): Promise<void
     description: input.description,
     completed: false,
     dueDate: input.dueDate,
+    order: input.order,
     createdAt: serverTimestamp(),
   })
 }
@@ -113,6 +105,7 @@ export async function updateTask(
     description: string
     completed: boolean
     dueDate: string | null
+    order: number
   },
 ): Promise<void> {
   await updateDoc(doc(requireDb(), tasksCollection, taskId), {
@@ -121,15 +114,27 @@ export async function updateTask(
     description: fields.description,
     completed: fields.completed,
     dueDate: fields.dueDate,
+    order: fields.order,
   })
 }
 
 export async function setTaskCompleted(
   taskId: string,
-  fields: { userId: string; title: string; description: string; dueDate: string | null },
+  fields: {
+    userId: string
+    title: string
+    description: string
+    dueDate: string | null
+    order: number
+  },
   completed: boolean,
 ): Promise<void> {
   await updateTask(taskId, { ...fields, completed })
+}
+
+export async function updateTaskOrders(updates: Array<{ id: string; order: number }>): Promise<void> {
+  const database = requireDb()
+  await Promise.all(updates.map(({ id, order }) => updateDoc(doc(database, tasksCollection, id), { order })))
 }
 
 export async function deleteTask(taskId: string): Promise<void> {

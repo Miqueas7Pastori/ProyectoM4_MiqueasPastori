@@ -212,6 +212,16 @@ h3 {
   padding: 12px 14px;
 }
 
+.task[data-dragging] {
+  opacity: 0.75;
+}
+
+.drag-handle {
+  cursor: grab;
+  flex: 0 0 auto;
+  width: auto;
+}
+
 .task-top {
   display: flex;
   gap: 10px;

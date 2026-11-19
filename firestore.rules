@@ -21,7 +21,8 @@ service cloud.firestore {
           && request.resource.data.completed is bool
           && (request.resource.data.dueDate == null
             || (request.resource.data.dueDate is string
-              && request.resource.data.dueDate.matches('^\\d{4}-\\d{2}-\\d{2}$')));
+              && request.resource.data.dueDate.matches('^\\d{4}-\\d{2}-\\d{2}$')))
+          && request.resource.data.order is number;
       }
 
       allow read: if isOwner();
