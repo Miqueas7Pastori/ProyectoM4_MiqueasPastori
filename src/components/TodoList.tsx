@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useTasks } from '../hooks/useTasks.ts'
+import { filterTasks, type TaskFilter } from '../services/taskFilters.ts'
 import { deleteTask, setTaskCompleted } from '../services/tasks.ts'
 import { getTaskErrorMessage } from '../services/taskErrors.ts'
 import type { Task } from '../types/task.ts'
@@ -11,6 +12,8 @@ export function TodoList({ userId }: { userId: string }) {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
   const [pendingId, setPendingId] = useState<string | null>(null)
+  const [filter, setFilter] = useState<TaskFilter>('all')
+  const visibleTasks = filterTasks(tasks, filter)
 
   async function runAction(taskId: string, action: () => Promise<void>) {
     setActionError(null)
@@ -43,15 +46,32 @@ export function TodoList({ userId }: { userId: string }) {
           {actionError}
         </p>
       )}
+      {!loading && !error && (
+        <div className="task-filters" role="group" aria-label="Filtrar tareas">
+          <FilterButton current={filter} value="all" onSelect={setFilter}>
+            Todas
+          </FilterButton>
+          <FilterButton current={filter} value="pending" onSelect={setFilter}>
+            Pendientes
+          </FilterButton>
+          <FilterButton current={filter} value="completed" onSelect={setFilter}>
+            Completadas
+          </FilterButton>
+        </div>
+      )}
       {loading ? (
         <p className="task-message" role="status">
           Cargando tareas...
         </p>
       ) : tasks.length === 0 && !error ? (
         <p className="task-message">Todavía no tenés tareas.</p>
+      ) : visibleTasks.length === 0 && !error ? (
+        <p className="task-message">
+          {filter === 'pending' ? 'No hay tareas pendientes.' : 'No hay tareas completadas.'}
+        </p>
       ) : (
         <ul className="task-list">
-          {tasks.map((task) => (
+          {visibleTasks.map((task) => (
             <li key={task.id} className={task.completed ? 'task task-done' : 'task'}>
               {editingId === task.id ? (
                 <TodoForm userId={userId} task={task} onDone={() => setEditingId(null)} />
@@ -110,5 +130,30 @@ export function TodoList({ userId }: { userId: string }) {
       )}
       <SendSummaryButton tasks={tasks} disabled={loading || error !== null} />
     </div>
+  )
+}
+
+function FilterButton({
+  current,
+  value,
+  onSelect,
+  children,
+}: {
+  current: TaskFilter
+  value: TaskFilter
+  onSelect: (filter: TaskFilter) => void
+  children: string
+}) {
+  const selected = current === value
+
+  return (
+    <button
+      className={selected ? 'button button-small' : 'button button-small button-secondary'}
+      type="button"
+      aria-pressed={selected}
+      onClick={() => onSelect(value)}
+    >
+      {children}
+    </button>
   )
 }

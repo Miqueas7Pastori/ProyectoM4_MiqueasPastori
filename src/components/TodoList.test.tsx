@@ -165,6 +165,30 @@ describe('TodoList', () => {
     })
   })
 
+  it('filtra pendientes y completadas', async () => {
+    emitTasks(ownTasks)
+    const user = userEvent.setup()
+    render(<TodoList userId="u1" />)
+
+    expect(await screen.findByRole('heading', { name: 'Más nueva' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Más vieja' })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Pendientes' }))
+
+    expect(screen.getByRole('heading', { name: 'Más nueva' })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Más vieja' })).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Completadas' }))
+
+    expect(screen.queryByRole('heading', { name: 'Más nueva' })).not.toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Más vieja' })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Todas' }))
+
+    expect(screen.getByRole('heading', { name: 'Más nueva' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Más vieja' })).toBeInTheDocument()
+  })
+
   it('muestra el estado vacío', async () => {
     emitTasks([])
     render(<TodoList userId="u1" />)
