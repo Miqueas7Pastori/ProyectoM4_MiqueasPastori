@@ -45,11 +45,7 @@ describe('rutas de autenticación', () => {
     renderWithProviders(<App />, { route: '/tareas' })
 
     expect(await screen.findByRole('heading', { name: 'Tus tareas' })).toBeInTheDocument()
-    expect(
-      screen.getByText(
-        'Sesión iniciada como ana@mail.com. El listado se conecta en la próxima parte.',
-      ),
-    ).toBeInTheDocument()
+    expect(screen.getByText('Sesión iniciada como ana@mail.com.')).toBeInTheDocument()
   })
 
   it('no redirige mientras la sesión está cargando', () => {

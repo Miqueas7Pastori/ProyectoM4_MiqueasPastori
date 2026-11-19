@@ -1,5 +1,6 @@
-import { getApp, getApps, initializeApp, type FirebaseOptions } from 'firebase/app'
+import { getApp, getApps, initializeApp, type FirebaseApp, type FirebaseOptions } from 'firebase/app'
 import { getAuth, type Auth } from 'firebase/auth'
+import { getFirestore, type Firestore } from 'firebase/firestore'
 
 function readConfig(): FirebaseOptions | null {
   const config = {
@@ -18,14 +19,17 @@ function readConfig(): FirebaseOptions | null {
   return complete ? config : null
 }
 
-function createAuth(): Auth | null {
+function createApp(): FirebaseApp | null {
   const config = readConfig()
   if (!config) return null
 
-  const app = getApps().length > 0 ? getApp() : initializeApp(config)
-  return getAuth(app)
+  return getApps().length > 0 ? getApp() : initializeApp(config)
 }
 
-export const auth = createAuth()
+const app = createApp()
 
-export const isFirebaseConfigured = auth !== null
+export const auth: Auth | null = app ? getAuth(app) : null
+
+export const db: Firestore | null = app ? getFirestore(app) : null
+
+export const isFirebaseConfigured = auth !== null && db !== null
