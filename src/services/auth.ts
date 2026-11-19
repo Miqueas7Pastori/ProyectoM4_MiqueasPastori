@@ -49,6 +49,19 @@ export async function signOutUser(): Promise<void> {
   await signOut(requireAuth())
 }
 
+export async function getIdToken(): Promise<string> {
+  const current = requireAuth().currentUser
+  if (!current) {
+    throw new Error('Tenés que iniciar sesión para enviar el resumen.')
+  }
+
+  try {
+    return await current.getIdToken()
+  } catch {
+    throw new Error('No se pudo confirmar tu sesión. Volvé a ingresar.')
+  }
+}
+
 export function subscribeToAuth(onChange: (user: AuthUser | null) => void): () => void {
   if (!auth) {
     onChange(null)

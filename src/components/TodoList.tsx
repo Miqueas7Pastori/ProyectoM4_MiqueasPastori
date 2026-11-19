@@ -3,6 +3,7 @@ import { useTasks } from '../hooks/useTasks.ts'
 import { deleteTask, setTaskCompleted } from '../services/tasks.ts'
 import { getTaskErrorMessage } from '../services/taskErrors.ts'
 import type { Task } from '../types/task.ts'
+import { SendSummaryButton } from './SendSummaryButton.tsx'
 import { TodoForm } from './TodoForm.tsx'
 
 export function TodoList({ userId }: { userId: string }) {
@@ -97,6 +98,7 @@ export function TodoList({ userId }: { userId: string }) {
           ))}
         </ul>
       )}
+      <SendSummaryButton tasks={tasks} disabled={loading || error !== null} />
     </div>
   )
 }

@@ -279,6 +279,22 @@ input {
   color: #9b1c1c;
 }
 
+.form-success {
+  margin: 12px 0 0;
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: #e7f6ef;
+  color: #0f6e56;
+}
+
+.summary {
+  margin-top: 16px;
+}
+
+.summary .button {
+  width: 100%;
+}
+
 .separator {
   display: grid;
   grid-template-columns: 1fr auto 1fr;

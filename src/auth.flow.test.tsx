@@ -12,6 +12,7 @@ vi.mock('./services/auth.ts', () => ({
   registerWithEmail: vi.fn(),
   loginWithGoogle: vi.fn(),
   signOutUser: vi.fn(),
+  getIdToken: vi.fn(),
 }))
 
 const ana: AuthUser = {
