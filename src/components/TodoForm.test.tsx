@@ -94,4 +94,17 @@ describe('TodoForm', () => {
     })
     expect(onDone).toHaveBeenCalledOnce()
   })
+
+  it('muestra el error si Firestore rechaza el alta', async () => {
+    vi.mocked(addDoc).mockRejectedValue({ code: 'permission-denied' })
+    const user = userEvent.setup()
+    render(<TodoForm userId="u1" />)
+
+    await user.type(screen.getByLabelText('Título'), 'Comprar café')
+    await user.click(screen.getByRole('button', { name: 'Agregar tarea' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'No tenés permiso para ver o modificar estas tareas.',
+    )
+  })
 })
