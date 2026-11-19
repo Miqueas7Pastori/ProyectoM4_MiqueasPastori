@@ -39,6 +39,10 @@ function readCreatedAt(value: unknown): string | null {
   return typeof value === 'string' ? value : null
 }
 
+function readDueDate(value: unknown) {
+  return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value) ? value : null
+}
+
 function mapTask(id: string, data: Record<string, unknown>): Task {
   return {
     id,
@@ -46,11 +50,17 @@ function mapTask(id: string, data: Record<string, unknown>): Task {
     title: typeof data.title === 'string' ? data.title : '',
     description: typeof data.description === 'string' ? data.description : '',
     completed: data.completed === true,
+    dueDate: readDueDate(data.dueDate),
     createdAt: readCreatedAt(data.createdAt),
   }
 }
 
-function byNewest(a: Task, b: Task) {
+function byDueDate(a: Task, b: Task) {
+  if (a.dueDate && b.dueDate && a.dueDate !== b.dueDate) return a.dueDate < b.dueDate ? -1 : 1
+
+  if (a.dueDate && !b.dueDate) return -1
+  if (!a.dueDate && b.dueDate) return 1
+
   const aTime = a.createdAt ? Date.parse(a.createdAt) : Number.POSITIVE_INFINITY
   const bTime = b.createdAt ? Date.parse(b.createdAt) : Number.POSITIVE_INFINITY
   return bTime - aTime
@@ -74,7 +84,7 @@ export function subscribeToTasks(
       const tasks = snapshot.docs
         .map((item) => mapTask(item.id, item.data() as Record<string, unknown>))
         .filter((task) => task.userId === userId)
-        .sort(byNewest)
+        .sort(byDueDate)
 
       onChange(tasks)
     },
@@ -90,25 +100,33 @@ export async function createTask(userId: string, input: TaskInput): Promise<void
     title: input.title,
     description: input.description,
     completed: false,
+    dueDate: input.dueDate,
     createdAt: serverTimestamp(),
   })
 }
 
 export async function updateTask(
   taskId: string,
-  fields: { userId: string; title: string; description: string; completed: boolean },
+  fields: {
+    userId: string
+    title: string
+    description: string
+    completed: boolean
+    dueDate: string | null
+  },
 ): Promise<void> {
   await updateDoc(doc(requireDb(), tasksCollection, taskId), {
     userId: fields.userId,
     title: fields.title,
     description: fields.description,
     completed: fields.completed,
+    dueDate: fields.dueDate,
   })
 }
 
 export async function setTaskCompleted(
   taskId: string,
-  fields: { userId: string; title: string; description: string },
+  fields: { userId: string; title: string; description: string; dueDate: string | null },
   completed: boolean,
 ): Promise<void> {
   await updateTask(taskId, { ...fields, completed })

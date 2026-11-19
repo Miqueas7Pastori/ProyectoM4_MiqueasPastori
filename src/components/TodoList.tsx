@@ -91,6 +91,7 @@ export function TodoList({ userId }: { userId: string }) {
                               userId: task.userId,
                               title: task.title,
                               description: task.description,
+                              dueDate: task.dueDate,
                             },
                             !task.completed,
                           ),
@@ -99,6 +100,7 @@ export function TodoList({ userId }: { userId: string }) {
                     />
                     <div className="task-main">
                       <h3 className="task-title">{task.title}</h3>
+                      {task.dueDate && <p className="task-due">Vence el {formatDueDate(task.dueDate)}</p>}
                       {task.description && <p className="task-description">{task.description}</p>}
                     </div>
                   </div>
@@ -131,6 +133,11 @@ export function TodoList({ userId }: { userId: string }) {
       <SendSummaryButton tasks={tasks} disabled={loading || error !== null} />
     </div>
   )
+}
+
+function formatDueDate(value: string) {
+  const [year, month, day] = value.split('-')
+  return `${day}/${month}/${year}`
 }
 
 function FilterButton({

@@ -56,6 +56,7 @@ const ownTasks: FakeDoc[] = [
       title: 'Más nueva',
       description: 'Primero',
       completed: false,
+      dueDate: '2026-01-10',
       createdAt: timestamp('2026-01-02T00:00:00.000Z'),
     },
   },
@@ -66,6 +67,7 @@ const ownTasks: FakeDoc[] = [
       title: 'Más vieja',
       description: '',
       completed: true,
+      dueDate: '2026-02-01',
       createdAt: timestamp('2026-01-01T00:00:00.000Z'),
     },
   },
@@ -124,6 +126,7 @@ describe('TodoList', () => {
           title: 'Más nueva',
           description: 'Primero',
           completed: true,
+          dueDate: '2026-01-10',
         },
       )
     })
@@ -160,6 +163,7 @@ describe('TodoList', () => {
           title: 'Más nueva editada',
           description: 'Primero',
           completed: false,
+          dueDate: '2026-01-10',
         },
       )
     })

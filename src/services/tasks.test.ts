@@ -42,7 +42,11 @@ describe('tareas', () => {
   })
 
   it('guarda una tarea nueva solo con el usuario indicado', async () => {
-    await createTask('u1', { title: 'Comprar café', description: 'En el centro' })
+    await createTask('u1', {
+      title: 'Comprar café',
+      description: 'En el centro',
+      dueDate: '2026-11-20',
+    })
 
     expect(addDoc).toHaveBeenCalledWith(
       { path: 'tasks' },
@@ -51,6 +55,7 @@ describe('tareas', () => {
         title: 'Comprar café',
         description: 'En el centro',
         completed: false,
+        dueDate: '2026-11-20',
         createdAt: 'server-timestamp',
       },
     )
@@ -62,24 +67,37 @@ describe('tareas', () => {
       title: 'Estudiar',
       description: 'Reglas',
       completed: false,
+      dueDate: '2026-12-01',
     })
 
     expect(updateDoc).toHaveBeenCalledWith(
       { path: 'tasks/task-1' },
-      { userId: 'u1', title: 'Estudiar', description: 'Reglas', completed: false },
+      {
+        userId: 'u1',
+        title: 'Estudiar',
+        description: 'Reglas',
+        completed: false,
+        dueDate: '2026-12-01',
+      },
     )
   })
 
   it('marca una tarea como completada', async () => {
     await setTaskCompleted(
       'task-1',
-      { userId: 'u1', title: 'Estudiar', description: 'Reglas' },
+      { userId: 'u1', title: 'Estudiar', description: 'Reglas', dueDate: '2026-12-01' },
       true,
     )
 
     expect(updateDoc).toHaveBeenCalledWith(
       { path: 'tasks/task-1' },
-      { userId: 'u1', title: 'Estudiar', description: 'Reglas', completed: true },
+      {
+        userId: 'u1',
+        title: 'Estudiar',
+        description: 'Reglas',
+        completed: true,
+        dueDate: '2026-12-01',
+      },
     )
   })
 
@@ -89,7 +107,7 @@ describe('tareas', () => {
     expect(deleteDoc).toHaveBeenCalledWith({ path: 'tasks/task-1' })
   })
 
-  it('lista solo las tareas del usuario y deja la más nueva primero', () => {
+  it('lista solo las tareas del usuario y las ordena por vencimiento', () => {
     const onChange = vi.fn()
     const onError = vi.fn()
     vi.mocked(onSnapshot).mockImplementation(((
@@ -99,23 +117,35 @@ describe('tareas', () => {
       onNext({
         docs: [
           {
-            id: 'old',
+            id: 'late',
             data: () => ({
               userId: 'u1',
-              title: 'Vieja',
+              title: 'Tarde',
               description: '',
               completed: false,
+              dueDate: '2026-03-01',
               createdAt: '2026-01-01T00:00:00.000Z',
             }),
           },
           {
-            id: 'new',
+            id: 'soon',
             data: () => ({
               userId: 'u1',
-              title: 'Nueva',
+              title: 'Pronto',
               description: 'Detalle',
               completed: true,
+              dueDate: '2026-01-20',
               createdAt: { toDate: () => new Date('2026-03-01T00:00:00.000Z') },
+            }),
+          },
+          {
+            id: 'open',
+            data: () => ({
+              userId: 'u1',
+              title: 'Sin fecha',
+              description: '',
+              completed: false,
+              createdAt: '2026-04-01T00:00:00.000Z',
             }),
           },
           {
@@ -125,6 +155,7 @@ describe('tareas', () => {
               title: 'Ajena',
               description: '',
               completed: false,
+              dueDate: '2026-01-01',
               createdAt: '2026-04-01T00:00:00.000Z',
             }),
           },
@@ -139,20 +170,31 @@ describe('tareas', () => {
     expect(onError).not.toHaveBeenCalled()
     expect(onChange).toHaveBeenCalledWith([
       {
-        id: 'new',
+        id: 'soon',
         userId: 'u1',
-        title: 'Nueva',
+        title: 'Pronto',
         description: 'Detalle',
         completed: true,
+        dueDate: '2026-01-20',
         createdAt: '2026-03-01T00:00:00.000Z',
       },
       {
-        id: 'old',
+        id: 'late',
         userId: 'u1',
-        title: 'Vieja',
+        title: 'Tarde',
         description: '',
         completed: false,
+        dueDate: '2026-03-01',
         createdAt: '2026-01-01T00:00:00.000Z',
+      },
+      {
+        id: 'open',
+        userId: 'u1',
+        title: 'Sin fecha',
+        description: '',
+        completed: false,
+        dueDate: null,
+        createdAt: '2026-04-01T00:00:00.000Z',
       },
     ])
   })

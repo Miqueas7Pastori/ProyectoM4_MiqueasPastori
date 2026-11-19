@@ -4,10 +4,12 @@ export type Task = {
   title: string
   description: string
   completed: boolean
+  dueDate: string | null
   createdAt: string | null
 }
 
 export type TaskInput = {
   title: string
   description: string
+  dueDate: string | null
 }

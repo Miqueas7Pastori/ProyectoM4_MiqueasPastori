@@ -9,6 +9,7 @@ const tasks: Task[] = [
     title: 'Pendiente',
     description: '',
     completed: false,
+    dueDate: null,
     createdAt: null,
   },
   {
@@ -17,6 +18,7 @@ const tasks: Task[] = [
     title: 'Lista',
     description: '',
     completed: true,
+    dueDate: '2026-11-20',
     createdAt: null,
   },
 ]

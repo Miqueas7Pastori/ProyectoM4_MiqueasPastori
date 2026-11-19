@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { addDoc, updateDoc } from 'firebase/firestore'
@@ -31,6 +31,7 @@ const existing: Task = {
   title: 'Estudiar',
   description: 'Repasar Firestore',
   completed: false,
+  dueDate: '2026-03-01',
   createdAt: '2026-01-02T00:00:00.000Z',
 }
 
@@ -58,6 +59,7 @@ describe('TodoForm', () => {
 
     await user.type(screen.getByLabelText('Título'), 'Comprar café')
     await user.type(screen.getByLabelText('Descripción'), 'En el centro')
+    fireEvent.change(screen.getByLabelText('Vencimiento'), { target: { value: '2026-11-20' } })
     await user.click(screen.getByRole('button', { name: 'Agregar tarea' }))
 
     await waitFor(() => {
@@ -68,12 +70,14 @@ describe('TodoForm', () => {
           title: 'Comprar café',
           description: 'En el centro',
           completed: false,
+          dueDate: '2026-11-20',
           createdAt: 'server-timestamp',
         },
       )
     })
     expect(screen.getByLabelText('Título')).toHaveValue('')
     expect(screen.getByLabelText('Descripción')).toHaveValue('')
+    expect(screen.getByLabelText('Vencimiento')).toHaveValue('')
   })
 
   it('guarda los cambios de una tarea existente', async () => {
@@ -84,6 +88,7 @@ describe('TodoForm', () => {
     const title = screen.getByLabelText('Título')
     await user.clear(title)
     await user.type(title, 'Estudiar reglas')
+    fireEvent.change(screen.getByLabelText('Vencimiento'), { target: { value: '2026-04-02' } })
     await user.click(screen.getByRole('button', { name: 'Guardar cambios' }))
 
     await waitFor(() => {
@@ -94,6 +99,7 @@ describe('TodoForm', () => {
           title: 'Estudiar reglas',
           description: 'Repasar Firestore',
           completed: false,
+          dueDate: '2026-04-02',
         },
       )
     })

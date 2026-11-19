@@ -18,7 +18,10 @@ service cloud.firestore {
           && request.resource.data.title.size() <= 120
           && request.resource.data.description is string
           && request.resource.data.description.size() <= 2000
-          && request.resource.data.completed is bool;
+          && request.resource.data.completed is bool
+          && (request.resource.data.dueDate == null
+            || (request.resource.data.dueDate is string
+              && request.resource.data.dueDate.matches('^\\d{4}-\\d{2}-\\d{2}$')));
       }
 
       allow read: if isOwner();

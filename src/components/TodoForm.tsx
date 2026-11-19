@@ -9,16 +9,20 @@ type TodoFormProps = {
   onDone?: () => void
 }
 
-function validate(title: string, description: string) {
+function validate(title: string, description: string, dueDate: string) {
   if (!title) return 'El título es obligatorio.'
   if (title.length > 120) return 'El título puede tener hasta 120 caracteres.'
   if (description.length > 2000) return 'La descripción puede tener hasta 2000 caracteres.'
+  if (dueDate && !/^\d{4}-\d{2}-\d{2}$/.test(dueDate)) {
+    return 'La fecha de vencimiento no es válida.'
+  }
   return null
 }
 
 export function TodoForm({ userId, task, onDone }: TodoFormProps) {
   const [title, setTitle] = useState(task?.title ?? '')
   const [description, setDescription] = useState(task?.description ?? '')
+  const [dueDate, setDueDate] = useState(task?.dueDate ?? '')
   const [error, setError] = useState<string | null>(null)
   const [pending, setPending] = useState(false)
   const fieldId = task ? `task-${task.id}` : 'new-task'
@@ -27,7 +31,8 @@ export function TodoForm({ userId, task, onDone }: TodoFormProps) {
     event.preventDefault()
     const nextTitle = title.trim()
     const nextDescription = description.trim()
-    const formError = validate(nextTitle, nextDescription)
+    const nextDueDate = dueDate || null
+    const formError = validate(nextTitle, nextDescription, dueDate)
 
     if (formError) {
       setError(formError)
@@ -44,12 +49,18 @@ export function TodoForm({ userId, task, onDone }: TodoFormProps) {
           title: nextTitle,
           description: nextDescription,
           completed: task.completed,
+          dueDate: nextDueDate,
         })
         onDone?.()
       } else {
-        await createTask(userId, { title: nextTitle, description: nextDescription })
+        await createTask(userId, {
+          title: nextTitle,
+          description: nextDescription,
+          dueDate: nextDueDate,
+        })
         setTitle('')
         setDescription('')
+        setDueDate('')
       }
     } catch (caught) {
       setError(getTaskErrorMessage(caught))
@@ -68,6 +79,16 @@ export function TodoForm({ userId, task, onDone }: TodoFormProps) {
           name="title"
           value={title}
           onChange={(event) => setTitle(event.target.value)}
+        />
+      </label>
+      <label htmlFor={`${fieldId}-due`}>
+        Vencimiento
+        <input
+          id={`${fieldId}-due`}
+          name="dueDate"
+          type="date"
+          value={dueDate}
+          onChange={(event) => setDueDate(event.target.value)}
         />
       </label>
       <label htmlFor={`${fieldId}-description`}>
