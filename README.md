@@ -8,7 +8,7 @@ Cada persona crea su cuenta, guarda sus propias tareas y las ve ordenadas por fe
 
 ## URL de producción
 
-| Producción | https://gestordetareasmatecode-kle5a6wqm-miqueas-pastori.vercel.app/ |
+| Producción | https://gestordetareasmatecode-7ttupx5xr-miqueas-pastori.vercel.app/ |
 | --- | --- |
 
 ## Decisiones arquitectónicas
