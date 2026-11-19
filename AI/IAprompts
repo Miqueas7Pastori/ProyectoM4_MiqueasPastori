@@ -1,0 +1,132 @@
+El proyecto fue realizado con desarrollo de IA, se utilizaron Prompts que indicaban que realizar y como hacerlo
+Como se explicó en el README dividi el proyecto en distintas partes, construyendolo por bloques. Los prompt utilizados para cada bloque fueron los siguientes:
+
+Bloque 1:
+Parte 1: la estructura inicial del proyecto. El workspace está vacío. No implementes autenticación, tareas, email ni deploy.
+
+Creá una SPA con Vite, React y TypeScript, y dejá Vitest con React Testing Library listos para las partes siguientes.
+
+Alcance:
+- Proyecto Vite con React y TypeScript en modo estricto.
+- Scripts para desarrollo, build, lint y tests.
+- Vitest con jsdom y React Testing Library, y un test del componente principal que pase.
+- Carpetas components, pages, services, hooks, context, types y api.
+- Pantalla inicial en español, con el título "Gestor de tareas".
+- .env.example sin datos, con las variables VITE_FIREBASE_* y, aparte, las de AWS SES sin el prefijo VITE_.
+- .env en .gitignore.
+
+Corré npm test y npm run build, y dejá ambos en verde.
+
+Bloque 2:
+Parte 2: autenticación. No avances a las tareas ni al email.
+
+Implementá registro, login y logout con Firebase Authentication, en React y TypeScript, con React Router para las rutas.
+
+Alcance:
+- Registro con email y password.
+- Login con email y password.
+- Login con Google.
+- Logout.
+- Rutas privadas: sin sesión no se puede entrar a la pantalla de tareas.
+- Un AuthContext con el usuario y el estado de carga.
+- Errores de Firebase traducidos al español (email en uso, contraseña incorrecta, cuenta inexistente).
+- Firebase se inicializa solo con las variables VITE_FIREBASE_* del .env. No hardcodees claves.
+- Tests con Vitest y React Testing Library. Mockeá Firebase. Cubrí el mapeo de errores y que la ruta privada redirige si no hay usuario.
+
+Si falta algo de la consola de Firebase, decime qué tengo que activar (Email/Password, Google y el dominio localhost) antes de dar la parte por cerrada.
+
+Bloque 3:
+Parte 3: gestión de tareas. No hagas el email ni el deploy.
+
+Implementá el CRUD de tareas del usuario autenticado con React, TypeScript y Cloud Firestore.
+
+Alcance:
+- Crear tarea con título y descripción.
+- Listar solo las tareas de ese usuario, filtrando por userId.
+- Editar, eliminar y marcar como completada.
+- Persistencia en Firestore y actualización automática de la UI con onSnapshot.
+- Estados de carga y de error.
+- Tipos de TypeScript para la tarea.
+- Componentes TodoForm y TodoList.
+- Reglas en firestore.rules para que cada usuario solo lea y escriba sus documentos, y los pasos para publicarlas.
+- Tests con Vitest y React Testing Library de TodoForm y TodoList, con Firestore mockeado.
+
+Bloque 4:
+Parte 4: el resumen por email. No hagas el deploy.
+
+Quiero un botón que envíe un email con el estado de todas las tareas del usuario, usando AWS SES.
+
+Alcance:
+- El frontend solo llama a una función de Vercel en /api. Las claves de AWS viven en esa función.
+- Usá el SDK de AWS SES con AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION y AWS_SES_FROM_EMAIL. Esas variables no llevan prefijo VITE_.
+- El mail indica cuántas tareas hay, cuántas están completas, cuántas pendientes, y lista los títulos.
+- Solo un usuario autenticado puede dispararlo, y la UI muestra el error si SES falla.
+- Test del armado del resumen con el cliente de SES mockeado.
+
+Bloque 5:
+Parte 5: cerrar el testing. No hagas el deploy ni el extra credit.
+
+Revisá la suite y completá lo que falte con Vitest y React Testing Library.
+
+Alcance:
+- Tests unitarios de las funciones clave: errores de auth, helpers de tareas y armado del resumen.
+- TodoForm y TodoList tienen que cubrir crear, editar, borrar, completar y el estado vacío.
+- Mockeá Firebase, Firestore y AWS SES. Ningún test puede llamar a un servicio real.
+- Corré npm test y dejá la suite en verde.
+
+Bloque 6:
+Parte 6: deploy en Vercel. 
+
+Alcance:
+- Dejá la SPA de Vite y la función /api listas para Vercel.
+- Confirmá que .env está en .gitignore y que .env.example no tiene datos reales.
+- Actualizá el README: cómo correr el proyecto, qué variables cargar en Vercel y la URL pública cuando exista.
+- Hacé el commit de la configuración y el README. No subas el .env y no hagas push hasta que yo te lo pida.
+- Pasame la lista exacta de variables que tengo que pegar en el panel de Vercel.
+
+Bloque 7:
+Parte 7:
+
+1. Filtros para marcar las tareas como: todas (se muestran todas las tareas), pendientes(las que faltan completar) o completadas(Solo las completadas). React y TypeScript, con un test del filtro.
+2. Fecha de vencimiento al crear y editar, guardada en Firestore, y ordenadas por fecha.
+3. Drag and drop para reordenar con @dnd-kit/core y @dnd-kit/sortable. Guardá el orden en Firestore.
+En cada ítem corré npm test.
+
+Se utilizo la consigna dada en el proyecto para contextualizar a la IA, sobre las tecnologias a usar como asi tambien para que era la aplicación. Se utilizó Cursor.
+
+Contexto de la aplicacion a desarrollar y las tecnologias que vamos a utilizar:
+ MateCode es una startup que desarrolla aplicaciones web para pequeñas empresas. En este caso, un cliente necesita una aplicación web para que sus empleados puedan gestionar tareas diarias de forma organizada, persistente y accesible desde cualquier dispositivo.
+
+La empresa solicita una solución rápida, escalable y basada en servicios administrados (BaaS), por lo que se define el siguiente stack:
+
+Frontend con React + TypeScript
+Backend as a Service con Firebase (Auth + Firestore)
+Notificaciones por email con AWS SES
+Deploy en Vercel
+Tests de componentes con Vitest y React Testing Library.
+Como Desarrollador/a Full Stack Junior, tu rol será diseñar, implementar, testear y documentar una aplicación SPA funcional que permita:
+
+Registro y autenticación de usuarios
+Gestión completa de tareas (CRUD)
+Persistencia en la nube por usuario
+Envío de notificaciones por email
+Deploy público accesible vía URL
+Deberás aplicar buenas prácticas de arquitectura, tipado, testing, seguridad y control de versiones profesional de código.
+
+Prompt utilizado para desarrollar el README:
+
+Bueno respecto al ReadMe quiero que lo dividas en bloques:
+📄 README con:
+
+-  Descripción del proyecto. Quiero que expliques segun el rol que nos asignaron: Gestor de Tareas MateCode, fue una pagina desarrollada por la empresa MateCode con el fin de ayudar a los usuarios a organizar sus horarios y tareas. (Algo asi la idea es que expliques)
+
+- URL de producción: https://gestordetareasmatecode-kle5a6wqm-miqueas-pastori.vercel.app/ (en un cuadrado tipo tabla de 2 columnas y 1 fila)
+
+ -  Decisiones arquitectónicas. Quiero que expliques como decidi ir construyendo el proyecto, es decir por bloques y aparte muestres la estructura del proyecto, en ramas
+
+  - Instrucciones de instalación.
+
+ -  Variables de entorno necesarias.
+
+ -  Flujo de envío de emails. Aca importante quiero que expliques que debido a problemas con AWS de Amazon, no fue posible crear una cuenta y por lo tanto todavia no presenta la posibilidad de enviar resumenes por Email.
+ 
