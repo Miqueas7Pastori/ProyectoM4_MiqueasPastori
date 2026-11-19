@@ -94,15 +94,24 @@ export async function createTask(userId: string, input: TaskInput): Promise<void
   })
 }
 
-export async function updateTask(taskId: string, input: TaskInput): Promise<void> {
+export async function updateTask(
+  taskId: string,
+  fields: { userId: string; title: string; description: string; completed: boolean },
+): Promise<void> {
   await updateDoc(doc(requireDb(), tasksCollection, taskId), {
-    title: input.title,
-    description: input.description,
+    userId: fields.userId,
+    title: fields.title,
+    description: fields.description,
+    completed: fields.completed,
   })
 }
 
-export async function setTaskCompleted(taskId: string, completed: boolean): Promise<void> {
-  await updateDoc(doc(requireDb(), tasksCollection, taskId), { completed })
+export async function setTaskCompleted(
+  taskId: string,
+  fields: { userId: string; title: string; description: string },
+  completed: boolean,
+): Promise<void> {
+  await updateTask(taskId, { ...fields, completed })
 }
 
 export async function deleteTask(taskId: string): Promise<void> {

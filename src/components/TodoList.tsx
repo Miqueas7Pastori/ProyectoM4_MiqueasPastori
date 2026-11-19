@@ -64,7 +64,17 @@ export function TodoList({ userId }: { userId: string }) {
                       aria-label={toggleLabel(task)}
                       disabled={pendingId === task.id}
                       onChange={() =>
-                        void runAction(task.id, () => setTaskCompleted(task.id, !task.completed))
+                        void runAction(task.id, () =>
+                          setTaskCompleted(
+                            task.id,
+                            {
+                              userId: task.userId,
+                              title: task.title,
+                              description: task.description,
+                            },
+                            !task.completed,
+                          ),
+                        )
                       }
                     />
                     <div className="task-main">

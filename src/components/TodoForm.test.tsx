@@ -89,7 +89,12 @@ describe('TodoForm', () => {
     await waitFor(() => {
       expect(updateDoc).toHaveBeenCalledWith(
         { path: 'tasks/task-1' },
-        { title: 'Estudiar reglas', description: 'Repasar Firestore' },
+        {
+          userId: 'u1',
+          title: 'Estudiar reglas',
+          description: 'Repasar Firestore',
+          completed: false,
+        },
       )
     })
     expect(onDone).toHaveBeenCalledOnce()

@@ -7,31 +7,24 @@ service cloud.firestore {
         return request.auth != null;
       }
 
-      function ownsExisting() {
+      function isOwner() {
         return signedIn() && resource.data.userId == request.auth.uid;
       }
 
-      function ownsIncoming() {
-        return signedIn() && request.resource.data.userId == request.auth.uid;
-      }
-
       function validTask() {
-        return request.resource.data.title is string
+        return request.resource.data.userId == request.auth.uid
+          && request.resource.data.title is string
           && request.resource.data.title.size() > 0
           && request.resource.data.title.size() <= 120
           && request.resource.data.description is string
           && request.resource.data.description.size() <= 2000
-          && request.resource.data.completed is bool
-          && request.resource.data.userId is string;
+          && request.resource.data.completed is bool;
       }
 
-      allow read: if ownsExisting();
-      allow create: if ownsIncoming() && validTask();
-      allow update: if ownsExisting()
-        && ownsIncoming()
-        && validTask()
-        && request.resource.data.userId == resource.data.userId;
-      allow delete: if ownsExisting();
+      allow read: if isOwner();
+      allow create: if signedIn() && validTask();
+      allow update: if isOwner() && validTask();
+      allow delete: if isOwner();
     }
   }
 }

@@ -117,7 +117,15 @@ describe('TodoList', () => {
     )
 
     await waitFor(() => {
-      expect(updateDoc).toHaveBeenCalledWith({ path: 'tasks/new' }, { completed: true })
+      expect(updateDoc).toHaveBeenCalledWith(
+        { path: 'tasks/new' },
+        {
+          userId: 'u1',
+          title: 'Más nueva',
+          description: 'Primero',
+          completed: true,
+        },
+      )
     })
   })
 
@@ -147,7 +155,12 @@ describe('TodoList', () => {
     await waitFor(() => {
       expect(updateDoc).toHaveBeenCalledWith(
         { path: 'tasks/new' },
-        { title: 'Más nueva editada', description: 'Primero' },
+        {
+          userId: 'u1',
+          title: 'Más nueva editada',
+          description: 'Primero',
+          completed: false,
+        },
       )
     })
   })

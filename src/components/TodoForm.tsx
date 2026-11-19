@@ -39,7 +39,12 @@ export function TodoForm({ userId, task, onDone }: TodoFormProps) {
 
     try {
       if (task) {
-        await updateTask(task.id, { title: nextTitle, description: nextDescription })
+        await updateTask(task.id, {
+          userId,
+          title: nextTitle,
+          description: nextDescription,
+          completed: task.completed,
+        })
         onDone?.()
       } else {
         await createTask(userId, { title: nextTitle, description: nextDescription })

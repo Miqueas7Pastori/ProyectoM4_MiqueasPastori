@@ -56,19 +56,31 @@ describe('tareas', () => {
     )
   })
 
-  it('actualiza título y descripción', async () => {
-    await updateTask('task-1', { title: 'Estudiar', description: 'Reglas' })
+  it('actualiza título y descripción sin cambiar el dueño', async () => {
+    await updateTask('task-1', {
+      userId: 'u1',
+      title: 'Estudiar',
+      description: 'Reglas',
+      completed: false,
+    })
 
     expect(updateDoc).toHaveBeenCalledWith(
       { path: 'tasks/task-1' },
-      { title: 'Estudiar', description: 'Reglas' },
+      { userId: 'u1', title: 'Estudiar', description: 'Reglas', completed: false },
     )
   })
 
   it('marca una tarea como completada', async () => {
-    await setTaskCompleted('task-1', true)
+    await setTaskCompleted(
+      'task-1',
+      { userId: 'u1', title: 'Estudiar', description: 'Reglas' },
+      true,
+    )
 
-    expect(updateDoc).toHaveBeenCalledWith({ path: 'tasks/task-1' }, { completed: true })
+    expect(updateDoc).toHaveBeenCalledWith(
+      { path: 'tasks/task-1' },
+      { userId: 'u1', title: 'Estudiar', description: 'Reglas', completed: true },
+    )
   })
 
   it('elimina una tarea', async () => {
